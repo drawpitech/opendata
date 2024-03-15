@@ -7,7 +7,7 @@ pub async fn start(args: &Args, database: &sql::Database) -> anyhow::Result<()> 
         .route("/api/get_near", get(get_near))
         .route("/api/info", get(info));
 
-    let listener = tokio::net::TcpListener::bind((&args.address, &args.port)).await?;
+    let listener = tokio::net::TcpListener::bind((args.address.clone(), args.port)).await?;
 
     println!("Listening on http://{:?}", listener.local_addr()?);
     axum::serve(listener, router).await?;
