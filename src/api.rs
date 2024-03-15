@@ -1,5 +1,4 @@
-use axum::Router;
-use axum::routing::{get, Route};
+use axum::routing::{get, Router};
 use super::{sql, Args};
 
 pub async fn start(args: &Args, database: &sql::Database) -> anyhow::Result<()> {
