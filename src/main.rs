@@ -25,9 +25,9 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let db = sql::Database::new(&args.database).await?;
 
-    api::start(&args, &db).await?;
+    db.insert_establishment(fetch_data::fetch_data().await?).await?;
 
-    fetch_data::fetch_data().await?;
+    api::start(&args, &db).await?;
 
     Ok(())
 }
