@@ -1,4 +1,5 @@
 mod sql;
+mod fetch_data;
 
 use axum::{routing::get, Router};
 use clap::Parser;
@@ -27,6 +28,8 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new().route("/", get(hello_world));
     let listener = tokio::net::TcpListener::bind((args.address, args.port)).await?;
+
+    fetch_data::fetch_data().await?;
 
     println!("Listening on http://{:?}", listener.local_addr()?);
     axum::serve(listener, app).await?;

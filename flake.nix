@@ -14,6 +14,8 @@
           buildInputs = with pkgs; [
             rustup
             nodejs
+            openssl
+            pkg-config
           ];
           RUSTC_VERSION = "stable-x86_64-unknown-linux-gnu";
           # https://github.com/rust-lang/rust-bindgen#environment-variables
