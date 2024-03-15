@@ -1,3 +1,5 @@
+mod sql;
+
 use axum::{routing::get, Router};
 use clap::Parser;
 
@@ -10,12 +12,18 @@ struct Args {
 
     /// Address to listen on
     #[arg(short, long, env, default_value = "0.0.0.0")]
-    address: String
+    address: String,
+
+    /// Path to the database file
+    #[arg(long, env, default_value = "palachias.sqlite")]
+    database: String,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+
+    let db = sql::Database::new(&args.database).await?;
 
     let app = Router::new().route("/", get(hello_world));
     let listener = tokio::net::TcpListener::bind((args.address, args.port)).await?;
