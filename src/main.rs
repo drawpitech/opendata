@@ -1,6 +1,6 @@
-mod sql;
 mod api;
 mod fetch_data;
+mod sql;
 
 use clap::Parser;
 
@@ -25,7 +25,8 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let db = sql::Database::new(&args.database).await?;
 
-    db.insert_establishment(fetch_data::fetch_data().await?).await?;
+    db.insert_establishment(fetch_data::fetch_data().await?)
+        .await?;
 
     api::start(&args, &db).await?;
 
