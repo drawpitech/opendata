@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteConnectOptions, FromRow, SqlitePool};
 
 use super::fetch_data::JsonEstablishment;
@@ -62,6 +62,14 @@ impl TryFrom<JsonEstablishment> for Establishment {
         })
     }
 }
+
+#[derive(Deserialize, Debug)]
+struct Bounds {
+        ne_lat: f64,
+        ne_lng: f64,
+        sw_lat: f64,
+        sw_lng: f64,
+    }
 
 impl Database {
     pub async fn new(database: &str) -> Result<Self> {
@@ -151,7 +159,15 @@ impl Database {
         Ok(count != 0)
     }
 
-    pub async fn list_establishments_bounds(&self) -> Result<Vec<Establishment>> {
-        todo!("list")
+    pub async fn list_establishments_bounds(&self, bounds: Bounds) -> Result<Vec<Establishment>> {
+        let establishment = sqlx::query_as("SELECT * FROM establishments WHERE latitude >= $1 AND latitude <= $2 AND longitude >= $3 AND longitude <= $4")
+            .bind(bounds.ne_lat) // MIN LATITUDE
+            .bind(bounds.sw_lat) // MAX LATITUDE
+            .bind(bounds.sw_lng) // MIN LONGITUDE
+            .bind(bounds.ne_lng) // MAX LONGITUDE
+            .fetch_all(&self.pool)
+            .await?;
+
+        Ok(establishment)
     }
 }

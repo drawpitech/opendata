@@ -31,14 +31,6 @@ pub async fn start(args: &Args, database: sql::Database) -> anyhow::Result<()> {
     Ok(())
 }
 
-#[derive(Deserialize, Debug)]
-struct Bounds {
-    ne_lat: f64,
-    ne_lng: f64,
-    sw_lat: f64,
-    sw_lng: f64,
-}
-
 async fn get_near(
     State(state): State<AppState>,
     Query(query): Query<Bounds>,
