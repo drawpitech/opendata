@@ -14,7 +14,7 @@
     in rec {
       devShells.default = pkgs.mkShell {
         buildInputs =
-          (with pkgs; [nodejs])
+          (with pkgs; [nodejs corepack])
           ++ packages.palachias.buildInputs
           ++ packages.palachias.nativeBuildInputs;
         RUSTC_VERSION = "stable";
