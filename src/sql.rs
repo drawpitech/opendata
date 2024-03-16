@@ -35,7 +35,7 @@ fn create_establishment(esta: JsonEstablishment) -> Result<Establishment> {
 
     Ok(Establishment {
         record_id: esta.recordid,
-        kind: "".to_string(),
+        kind: esta.fields.app_libelle_activite_etablissement.unwrap_or_default(),
         name: esta.fields.app_libelle_etablissement.unwrap_or_default(),
         siret: esta.fields.siret.unwrap_or_default(),
         address: esta.fields.adresse_2_ua.unwrap_or_default(),
@@ -73,7 +73,7 @@ impl Database {
     async fn create_table(&self) -> Result<()> {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS establishments (
-                record_id TEXT NOT NULL CONSTRAINT establishments_pk PRIMARY KEY,
+                record_id TEXT NOT NULL PRIMARY KEY,
                 kind      TEXT NOT NULL,
                 name      TEXT NOT NULL,
                 siret     TEXT NOT NULL,
@@ -93,12 +93,32 @@ impl Database {
     }
 
     pub async fn insert_establishments(&self, raw_data: Vec<JsonEstablishment>) -> Result<()> {
-        raw_data
+        let a: Vec<Establishment> = raw_data
             .into_iter()
             .filter_map(|e| create_establishment(e).ok())
-            .for_each(|e| {
-                println!("data = {:?}", e);
-            });
+            .collect();
+
+        println!("Inserting data");
+        for e in a {
+            sqlx::query(
+            "INSERT INTO establishments (record_id, kind, name, siret, address, city, postal_code, latitude, longitude, inspection_date, evaluation)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+            )
+            .bind(e.record_id)
+            .bind(e.kind)
+            .bind(e.name)
+            .bind(e.siret)
+            .bind(e.address)
+            .bind(e.city)
+            .bind(e.postal_code)
+            .bind(e.latitude)
+            .bind(e.longitude)
+            .bind(e.inspection_date)
+            .bind(e.evaluation)
+            .execute(&self.pool)
+            .await?;
+        }
+        println!("Data inserted");
 
         Ok(())
     }
