@@ -18,7 +18,7 @@ pub async fn start(args: &Args, database: sql::Database) -> anyhow::Result<()> {
     let state = AppState { database };
     let router = Router::new()
         .route("/", get(|| async { "API is alive and running!" }))
-        .route("/api/get_near/", get(get_near))
+        .route("/api/get_near", get(get_near))
         .route("/api/info/:id", get(info))
         .with_state(state);
 
