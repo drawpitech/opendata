@@ -23,6 +23,31 @@ pub struct Establishment {
     pub evaluation: String,
 }
 
+fn create_establishment(esta: JsonEstablishment) -> Result<Establishment> {
+    let geores = esta.fields.geores.unwrap_or_default();
+    if geores.len() != 2
+        || esta.fields.adresse_2_ua.is_none()
+        || esta.fields.libelle_commune.is_none()
+        || esta.fields.code_postal.is_none()
+    {
+        return Err(anyhow::anyhow!("Invalid data"));
+    }
+
+    Ok(Establishment {
+        record_id: esta.recordid,
+        kind: "".to_string(),
+        name: esta.fields.app_libelle_etablissement.unwrap_or_default(),
+        siret: esta.fields.siret.unwrap_or_default(),
+        address: esta.fields.adresse_2_ua.unwrap_or_default(),
+        city: esta.fields.libelle_commune.unwrap_or_default(),
+        postal_code: esta.fields.code_postal.unwrap_or_default(),
+        latitude: geores[0],
+        longitude: geores[1],
+        inspection_date: esta.record_timestamp,
+        evaluation: esta.fields.synthese_eval_sanit.unwrap_or_default(),
+    })
+}
+
 impl Database {
     pub async fn new(database: &str) -> Result<Self> {
         let options = SqliteConnectOptions::new()
@@ -67,44 +92,12 @@ impl Database {
         Ok(())
     }
 
-    fn create_establishment(&self, esta: JsonEstablishment) -> Result<Establishment> {
-        let geores = esta.fields.geores.unwrap_or_default();
-        if geores.len() != 2
-            || esta.fields.adresse_2_ua.is_none()
-            || esta.fields.libelle_commune.is_none()
-            || esta.fields.code_postal.is_none()
-        {
-            return Err(anyhow::anyhow!("Invalid data"));
-        }
-
-        Ok(Establishment {
-            record_id: esta.recordid,
-            kind: "".to_string(),
-            name: esta.fields.app_libelle_etablissement.unwrap_or_default(),
-            siret: esta.fields.siret.unwrap_or_default(),
-            address: esta.fields.adresse_2_ua.unwrap_or_default(),
-            city: esta.fields.libelle_commune.unwrap_or_default(),
-            postal_code: esta.fields.code_postal.unwrap_or_default(),
-            latitude: geores[0],
-            longitude: geores[1],
-            inspection_date: esta.record_timestamp,
-            evaluation: esta.fields.synthese_eval_sanit.unwrap_or_default(),
-        })
-    }
-
-    pub async fn insert_establishment(&self, raw_data: Vec<JsonEstablishment>) -> Result<()> {
-        self.create_table().await?;
-
+    pub async fn insert_establishments(&self, raw_data: Vec<JsonEstablishment>) -> Result<()> {
         raw_data
             .into_iter()
-            .map(|e| self.create_establishment(e))
-            .for_each(|e| match e {
-                Err(_) => {
-                    return;
-                }
-                Ok(data) => {
-                    println!("data = {:?}", data);
-                }
+            .filter_map(|e| create_establishment(e).ok())
+            .for_each(|e| {
+                println!("data = {:?}", e);
             });
 
         Ok(())
