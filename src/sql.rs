@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 
 use super::fetch_data::JsonEstablishment;
@@ -22,18 +22,26 @@ pub struct Establishment {
     pub inspection_date: String,
     pub evaluation: String,
 }
+
 impl TryFrom<JsonEstablishment> for Establishment {
-    type Error = ();
+    type Error = anyhow::Error;
 
     fn try_from(esta: JsonEstablishment) -> Result<Self, Self::Error> {
-        let geores = esta.fields.geores.unwrap_or_default();
-        if geores.len() != 2
-            || esta.fields.adresse_2_ua.is_none()
-            || esta.fields.libelle_commune.is_none()
-            || esta.fields.code_postal.is_none()
-        {
-            return Err(());
-        }
+        let Some([latitude, longitude]) = esta.fields.geores.as_deref() else {
+            return Err(anyhow!("Missing georeference data"));
+        };
+
+        let Some(address) = esta.fields.adresse_2_ua else {
+            return Err(anyhow!("Missing address"));
+        };
+
+        let Some(city) = esta.fields.libelle_commune else {
+            return Err(anyhow!("Missing city"));
+        };
+
+        let Some(postal_code) = esta.fields.code_postal else {
+            return Err(anyhow!("Missing postal code"));
+        };
 
         Ok(Establishment {
             record_id: esta.recordid,
@@ -43,13 +51,13 @@ impl TryFrom<JsonEstablishment> for Establishment {
                 .unwrap_or_default(),
             name: esta.fields.app_libelle_etablissement.unwrap_or_default(),
             siret: esta.fields.siret.unwrap_or_default(),
-            address: esta.fields.adresse_2_ua.unwrap_or_default(),
-            city: esta.fields.libelle_commune.unwrap_or_default(),
-            postal_code: esta.fields.code_postal.unwrap_or_default(),
-            latitude: geores[0],
-            longitude: geores[1],
             inspection_date: esta.record_timestamp,
             evaluation: esta.fields.synthese_eval_sanit.unwrap_or_default(),
+            latitude: *latitude,
+            longitude: *longitude,
+            postal_code,
+            address,
+            city,
         })
     }
 }
@@ -99,7 +107,7 @@ impl Database {
     }
 
     pub async fn insert_establishments(&self, raw_data: Vec<JsonEstablishment>) -> Result<()> {
-        let a: Vec<Establishment> = raw_data
+        let establishments: Vec<Establishment> = raw_data
             .into_iter()
             .filter_map(|e| e.try_into().ok())
             .collect();
@@ -107,12 +115,9 @@ impl Database {
         println!("Inserting data");
 
         let mut tx = self.pool.begin().await?;
-        for e in a {
-            if self.get_establishment(&e.record_id).await?.is_some() {
-                continue;
-            }
+        for e in establishments {
             sqlx::query(
-            "INSERT INTO establishments (record_id, kind, name, siret, address, city, postal_code, latitude, longitude, inspection_date, evaluation)
+            "INSERT OR REPLACE INTO establishments (record_id, kind, name, siret, address, city, postal_code, latitude, longitude, inspection_date, evaluation)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
             )
             .bind(e.record_id)

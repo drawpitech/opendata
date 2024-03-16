@@ -1,5 +1,4 @@
 use anyhow::Result;
-use reqwest;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
