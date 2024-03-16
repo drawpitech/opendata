@@ -8,7 +8,6 @@ use axum::{
     routing::get,
     Router,
 };
-use serde::Deserialize;
 
 #[derive(Debug, Clone)]
 struct AppState {
@@ -33,12 +32,17 @@ pub async fn start(args: &Args, database: sql::Database) -> anyhow::Result<()> {
 
 async fn get_near(
     State(state): State<AppState>,
-    Query(query): Query<Bounds>,
+    Query(query): Query<sql::Bounds>,
 ) -> Result<Json<Vec<sql::Establishment>>, StatusCode> {
-    todo!("get_near")
+    match state.database.list_establishments_bounds(&query).await {
+        Ok(establishment) => Ok(Json(establishment)),
+        Err(err) => {
+            eprintln!("Error in '/api/get_near/{:?}': {}", query, err);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
 }
 
-#[debug_handler]
 async fn info(
     State(state): State<AppState>,
     Path(path): Path<String>,
