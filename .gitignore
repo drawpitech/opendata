@@ -1,6 +1,7 @@
-/target
+target
+node_modules
+dist
 *.sqlite
-/target
 
 .idea
 .vscode
