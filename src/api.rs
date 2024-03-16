@@ -1,11 +1,13 @@
 use super::{sql, Args};
+use axum::extract::Query;
 use axum::{
+    debug_handler,
     extract::{Path, State},
+    http::StatusCode,
     response::Json,
     routing::get,
-    Router, debug_handler, http::StatusCode,
+    Router,
 };
-use axum::extract::Query;
 use serde::Deserialize;
 
 #[derive(Debug, Clone)]
@@ -37,18 +39,24 @@ struct Bounds {
     sw_lng: f64,
 }
 
-async fn get_near(State(state): State<AppState>, Query(query): Query<Bounds>) -> Result<Json<Vec<sql::Establishment>>, StatusCode> {
+async fn get_near(
+    State(state): State<AppState>,
+    Query(query): Query<Bounds>,
+) -> Result<Json<Vec<sql::Establishment>>, StatusCode> {
     todo!("get_near")
 }
 
 #[debug_handler]
-async fn info(State(state): State<AppState>, Path(path): Path<String>) -> Result<Json<sql::Establishment>, StatusCode> {
+async fn info(
+    State(state): State<AppState>,
+    Path(path): Path<String>,
+) -> Result<Json<sql::Establishment>, StatusCode> {
     match state.database.get_establishment(&path).await {
         Ok(Some(establishment)) => Ok(Json(establishment)),
         Ok(None) => Err(StatusCode::NOT_FOUND),
         Err(err) => {
             eprintln!("Error in `/api/info/{}`: {}", path, err);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
-        },
+        }
     }
 }

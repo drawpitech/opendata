@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
-use sqlx::{sqlite::SqliteConnectOptions, SqlitePool, FromRow};
 use serde::Serialize;
+use sqlx::{sqlite::SqliteConnectOptions, FromRow, SqlitePool};
 
 use super::fetch_data::JsonEstablishment;
 
@@ -144,14 +144,14 @@ impl Database {
     }
 
     pub async fn is_db_populated(&self) -> Result<bool> {
-        let count: i64 = sqlx::query_scalar("SELECT count(*) FROM (SELECT 0 FROM establishments LIMIT 1);")
-            .fetch_one(&self.pool)
-            .await?;
+        let count: i64 =
+            sqlx::query_scalar("SELECT count(*) FROM (SELECT 0 FROM establishments LIMIT 1);")
+                .fetch_one(&self.pool)
+                .await?;
         Ok(count != 0)
     }
 
     pub async fn list_establishments_bounds(&self) -> Result<Vec<Establishment>> {
-
         todo!("list")
     }
 }
