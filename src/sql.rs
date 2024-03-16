@@ -99,7 +99,9 @@ impl Database {
                 longitude REAL NOT NULL,
                 inspection_date TEXT NOT NULL,
                 evaluation TEXT NOT NULL
-            ) STRICT;",
+            ) STRICT;
+            CREATE INDEX IF NOT EXISTS establishments_latitude_index ON establishments (latitude);
+            CREATE INDEX IF NOT EXISTS establishments_longitude_index ON establishments (longitude);",
         )
         .execute(&self.pool)
         .await?;
@@ -146,5 +148,10 @@ impl Database {
             .fetch_one(&self.pool)
             .await?;
         Ok(count != 0)
+    }
+
+    pub async fn list_establishments_bounds(&self) -> Result<Vec<Establishment>> {
+
+        todo!("list")
     }
 }
