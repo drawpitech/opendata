@@ -18,6 +18,10 @@ struct Args {
     /// Path to the database file
     #[arg(long, env, default_value = "palachias.sqlite")]
     database: String,
+
+    /// Cache mode
+    #[arg(short, long, env, default_value_t = true)]
+    cache: bool,
 }
 
 #[tokio::main]
@@ -25,8 +29,13 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let db = sql::Database::new(&args.database).await?;
 
-    db.insert_establishments(fetch_data::fetch_data().await?)
-        .await?;
+    if !args.cache || !db.is_db_populated().await? {
+        println!("Refreshing cache.");
+        db.insert_establishments(fetch_data::fetch_data().await?)
+            .await?;
+    } else {
+        println!("Using cache.");
+    }
 
     api::start(&args, &db).await?;
 

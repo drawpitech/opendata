@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use sqlx::Row;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 
 use super::fetch_data::JsonEstablishment;
@@ -138,5 +139,12 @@ impl Database {
         println!("Data inserted");
 
         Ok(())
+    }
+
+    pub async fn is_db_populated(&self) -> Result<bool> {
+        let count: i64 = sqlx::query_scalar("SELECT count(*) FROM (SELECT 0 FROM establishments LIMIT 1);")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(count != 0)
     }
 }
