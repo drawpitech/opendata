@@ -99,6 +99,8 @@ impl Database {
             .collect();
 
         println!("Inserting data");
+
+        let mut tx = self.pool.begin().await?;
         for e in a {
             sqlx::query(
             "INSERT INTO establishments (record_id, kind, name, siret, address, city, postal_code, latitude, longitude, inspection_date, evaluation)
@@ -115,9 +117,10 @@ impl Database {
             .bind(e.longitude)
             .bind(e.inspection_date)
             .bind(e.evaluation)
-            .execute(&self.pool)
+            .execute(&mut *tx)
             .await?;
         }
+        tx.commit().await?;
         println!("Data inserted");
 
         Ok(())
