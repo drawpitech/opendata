@@ -22,30 +22,36 @@ pub struct Establishment {
     pub inspection_date: String,
     pub evaluation: String,
 }
+impl TryFrom<JsonEstablishment> for Establishment {
+    type Error = ();
 
-fn create_establishment(esta: JsonEstablishment) -> Result<Establishment> {
-    let geores = esta.fields.geores.unwrap_or_default();
-    if geores.len() != 2
-        || esta.fields.adresse_2_ua.is_none()
-        || esta.fields.libelle_commune.is_none()
-        || esta.fields.code_postal.is_none()
-    {
-        return Err(anyhow::anyhow!("Invalid data"));
+    fn try_from(esta: JsonEstablishment) -> Result<Self, Self::Error> {
+        let geores = esta.fields.geores.unwrap_or_default();
+        if geores.len() != 2
+            || esta.fields.adresse_2_ua.is_none()
+            || esta.fields.libelle_commune.is_none()
+            || esta.fields.code_postal.is_none()
+        {
+            return Err(());
+        }
+
+        Ok(Establishment {
+            record_id: esta.recordid,
+            kind: esta
+                .fields
+                .app_libelle_activite_etablissement
+                .unwrap_or_default(),
+            name: esta.fields.app_libelle_etablissement.unwrap_or_default(),
+            siret: esta.fields.siret.unwrap_or_default(),
+            address: esta.fields.adresse_2_ua.unwrap_or_default(),
+            city: esta.fields.libelle_commune.unwrap_or_default(),
+            postal_code: esta.fields.code_postal.unwrap_or_default(),
+            latitude: geores[0],
+            longitude: geores[1],
+            inspection_date: esta.record_timestamp,
+            evaluation: esta.fields.synthese_eval_sanit.unwrap_or_default(),
+        })
     }
-
-    Ok(Establishment {
-        record_id: esta.recordid,
-        kind: esta.fields.app_libelle_activite_etablissement.unwrap_or_default(),
-        name: esta.fields.app_libelle_etablissement.unwrap_or_default(),
-        siret: esta.fields.siret.unwrap_or_default(),
-        address: esta.fields.adresse_2_ua.unwrap_or_default(),
-        city: esta.fields.libelle_commune.unwrap_or_default(),
-        postal_code: esta.fields.code_postal.unwrap_or_default(),
-        latitude: geores[0],
-        longitude: geores[1],
-        inspection_date: esta.record_timestamp,
-        evaluation: esta.fields.synthese_eval_sanit.unwrap_or_default(),
-    })
 }
 
 impl Database {
@@ -95,13 +101,16 @@ impl Database {
     pub async fn insert_establishments(&self, raw_data: Vec<JsonEstablishment>) -> Result<()> {
         let a: Vec<Establishment> = raw_data
             .into_iter()
-            .filter_map(|e| create_establishment(e).ok())
+            .filter_map(|e| e.try_into().ok())
             .collect();
 
         println!("Inserting data");
 
         let mut tx = self.pool.begin().await?;
         for e in a {
+            if self.get_establishment(&e.record_id).await?.is_some() {
+                continue;
+            }
             sqlx::query(
             "INSERT INTO establishments (record_id, kind, name, siret, address, city, postal_code, latitude, longitude, inspection_date, evaluation)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
