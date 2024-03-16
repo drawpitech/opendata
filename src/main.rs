@@ -37,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
         println!("Using cache.");
     }
 
-    api::start(&args, &db).await?;
+    api::start(&args, db).await?;
 
     Ok(())
 }

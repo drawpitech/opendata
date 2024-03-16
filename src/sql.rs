@@ -1,15 +1,15 @@
 use anyhow::{anyhow, Result};
-use sqlx::Row;
-use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+use sqlx::{sqlite::SqliteConnectOptions, SqlitePool, FromRow};
+use serde::Serialize;
 
 use super::fetch_data::JsonEstablishment;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Database {
     pool: SqlitePool,
 }
 
-#[derive(sqlx::FromRow, Debug)]
+#[derive(FromRow, Serialize, Debug)]
 pub struct Establishment {
     pub record_id: String,
     pub kind: String,
