@@ -1,6 +1,6 @@
 import { Bounds } from "pigeon-maps";
 import { match } from "ts-pattern";
-import { Output, array, number, object, parse, string } from "valibot";
+import { Output, array, date, number, object, parse, string } from "valibot";
 
 const EstablishmentSchema = object({
   record_id: string(),
@@ -37,9 +37,9 @@ export async function fetchEstablishments(bounds: Bounds) {
 
 export const getEstablishmentColor = (evaluation: string) => {
   return match(evaluation)
-    .with("Très satisfaisant", () => "#22c55e")
-    .with("Satisfaisant", () => "#a3e635")
-    .with("A améliorer", () => "#fbbf24")
-    .with("A corriger de manière urgente", () => "#ef4444")
+    .with("Très satisfaisant", () => "#15803d")
+    .with("Satisfaisant", () => "#65a30d")
+    .with("A améliorer", () => "#d97706 ")
+    .with("A corriger de manière urgente", () => "#b91c1c")
     .otherwise(() => "#737373");
 };
