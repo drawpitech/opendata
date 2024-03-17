@@ -160,9 +160,9 @@ impl Database {
     }
 
     pub async fn list_establishments_bounds(&self, bounds: &Bounds) -> Result<Vec<Establishment>> {
-        let establishment = sqlx::query_as("SELECT * FROM establishments WHERE latitude >= $1 AND latitude <= $2 AND longitude >= $3 AND longitude <= $4")
-            .bind(bounds.ne_lat) // MIN LATITUDE
-            .bind(bounds.sw_lat) // MAX LATITUDE
+        let establishment = sqlx::query_as("SELECT * FROM establishments WHERE latitude <= $1 AND latitude >= $2 AND longitude >= $3 AND longitude <= $4")
+            .bind(bounds.ne_lat) // MAX LATITUDE
+            .bind(bounds.sw_lat) // MIN LATITUDE
             .bind(bounds.sw_lng) // MIN LONGITUDE
             .bind(bounds.ne_lng) // MAX LONGITUDE
             .fetch_all(&self.pool)

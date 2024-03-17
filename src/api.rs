@@ -1,7 +1,6 @@
 use super::{sql, Args};
 use axum::extract::Query;
 use axum::{
-    debug_handler,
     extract::{Path, State},
     http::StatusCode,
     response::Json,

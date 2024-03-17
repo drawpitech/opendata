@@ -5,12 +5,24 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@tanstack/react-query':
+    specifier: ^5.28.4
+    version: 5.28.4(react@18.2.0)
+  pigeon-maps:
+    specifier: ^0.21.4
+    version: 0.21.4(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
+  ts-pattern:
+    specifier: ^5.0.8
+    version: 5.0.8
+  valibot:
+    specifier: ^0.30.0
+    version: 0.30.0
 
 devDependencies:
   '@tailwindcss/vite':
@@ -682,6 +694,19 @@ packages:
       lightningcss: 1.24.1
       tailwindcss: 4.0.0-alpha.9
     dev: true
+
+  /@tanstack/query-core@5.28.4:
+    resolution: {integrity: sha512-uQZqOFqLWUvXNIQZ63XdKzg22NtHzgCBUfDmjDHi3BoF+nUYeBNvMi/xFPtFrMhqRzG2Ir4mYaGsWZzmiEjXpA==}
+    dev: false
+
+  /@tanstack/react-query@5.28.4(react@18.2.0):
+    resolution: {integrity: sha512-BErcoB/QQG6YwLSUKnaGxF+lSc270RH2w3kMBpG0i4YzDCsFs2pdxPX1WVknQvFk9bNgukMb158hc2Zb4SdwSA==}
+    peerDependencies:
+      react: ^18.0.0
+    dependencies:
+      '@tanstack/query-core': 5.28.4
+      react: 18.2.0
+    dev: false
 
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
@@ -1607,6 +1632,14 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
+  /pigeon-maps@0.21.4(react@18.2.0):
+    resolution: {integrity: sha512-PqxEMNfnpx6MqubH4WWD+dMS2EE2g/S+Y+nGa6kyZxe7OAqJsfmd3FInzoK4nOfYhlh15+g2GD4VHmivAYlnIg==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /postcss@8.4.35:
     resolution: {integrity: sha512-u5U8qYpBCpN13BsiEB0CbR1Hhh4Gc0zLFuedrHJKMctHCHAGrMdG0PRM/KErzAL3CU6/eckEtmHNB3x6e3c0vA==}
     engines: {node: ^10 || ^12 || >=14}
@@ -1778,6 +1811,10 @@ packages:
       typescript: 5.4.2
     dev: true
 
+  /ts-pattern@5.0.8:
+    resolution: {integrity: sha512-aafbuAQOTEeWmA7wtcL94w6I89EgLD7F+IlWkr596wYxeb0oveWDO5dQpv85YP0CGbxXT/qXBIeV6IYLcoZ2uA==}
+    dev: false
+
   /type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
@@ -1819,6 +1856,10 @@ packages:
     dependencies:
       punycode: 2.3.1
     dev: true
+
+  /valibot@0.30.0:
+    resolution: {integrity: sha512-5POBdbSkM+3nvJ6ZlyQHsggisfRtyT4tVTo1EIIShs6qCdXJnyWU5TJ68vr8iTg5zpOLjXLRiBqNx+9zwZz/rA==}
+    dev: false
 
   /vite@5.1.6:
     resolution: {integrity: sha512-yYIAZs9nVfRJ/AiOLCA91zzhjsHUgMjB+EigzFb6W2XTLO8JixBCKCjvhKZaye+NKYHCrkv3Oh50dH9EdLU2RA==}

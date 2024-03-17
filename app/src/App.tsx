@@ -1,5 +1,14 @@
-function App() {
-  return <h1>Palachias</h1>;
-}
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { EstablishmentMap } from "./components/EstablishmentMap";
 
-export default App;
+const queryClient = new QueryClient();
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <div className="h-screen w-screen">
+        <EstablishmentMap />
+      </div>
+    </QueryClientProvider>
+  );
+}
