@@ -1,6 +1,6 @@
 import { Bounds } from "pigeon-maps";
 import { match } from "ts-pattern";
-import { Output, array, date, number, object, parse, string } from "valibot";
+import { Output, array, number, object, parse, string } from "valibot";
 
 const EstablishmentSchema = object({
   record_id: string(),
