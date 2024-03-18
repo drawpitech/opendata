@@ -1,5 +1,6 @@
 use super::{sql, Args};
 use axum::extract::Query;
+use axum::http::Method;
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -7,6 +8,7 @@ use axum::{
     routing::get,
     Router,
 };
+use tower_http::cors::{Any, CorsLayer};
 
 #[derive(Debug, Clone)]
 struct AppState {
@@ -15,10 +17,15 @@ struct AppState {
 
 pub async fn start(args: &Args, database: sql::Database) -> anyhow::Result<()> {
     let state = AppState { database };
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET])
+        .allow_origin(Any);
+
     let router = Router::new()
         .route("/", get(|| async { "API is alive and running!" }))
         .route("/api/get_near", get(get_near))
         .route("/api/info/:id", get(info))
+        .layer(cors)
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind((args.address.clone(), args.port)).await?;

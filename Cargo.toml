@@ -9,7 +9,8 @@ edition = "2021"
 anyhow = "1.0.81"
 axum = { version = "0.7.4", features = ["macros"] }
 clap = { version = "4.5.3", features = ["derive", "env"] }
-tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread", "net" ] }
-sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite"] }
 reqwest = { version = "0.11.26", features = ["json"] }
 serde = { version = "1.0.197", features = ["derive"] }
+sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite"] }
+tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread", "net" ] }
+tower-http = { version = "0.5.2", features = ["cors"] }
